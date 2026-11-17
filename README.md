@@ -31,8 +31,13 @@ Tambahkan `?preview=regular` atau `?preview=closed` di URL untuk melihat tampila
 | Pengaturan | Nilai |
 |---|---|
 | Framework preset | None |
-| Build command | (kosong) |
-| Build output directory | `/` (root repo) |
+| Production branch | `main` (setiap push ke `main` langsung tayang) |
+| Build command | `mkdir -p dist && cp -R index.html css js assets dist/` |
+| Build output directory | `dist` |
+
+Build command hanya menyalin berkas situs ke `dist`, supaya `README.md`, `.gitignore` dan berkas repo lain tidak ikut tayang.
+Kalau menambah berkas/folder baru di root yang harus tayang (misalnya `favicon.ico`), tambahkan juga ke build command.
+`dist/` tidak perlu dibuat di repo.
 
 ## Menyambungkan tombol Register ke embed
 

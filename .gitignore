@@ -2,3 +2,6 @@
 
 # materi mentah dari panitia (PDF draft, banner ukuran asli) dan tangkapan pratinjau
 /_materi/
+
+# hasil build command Cloudflare Pages
+/dist/
