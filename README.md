@@ -49,10 +49,10 @@ Periode harga ditentukan otomatis dari tanggal WIB.
 
 Gambar berikut masih potongan dari banner/PDF draft dan perlu diganti file asli dari desainer panitia:
 
-- `logo-ocm-2027.jpg`, `logo-ring.jpg`: logo OCM (minta PNG transparan / SVG)
+- `logo-ocm-2027.png`, `logo-ring.png`: logo OCM (minta PNG transparan / SVG)
 - `logo-societies.jpg`: enam logo organisasi (minta per logo, PNG transparan)
-- `photo-*.jpg`: foto Surabaya, live surgery, trauma, pain (minta resolusi asli)
-- `portrait-*.jpg`: foto ketua dan presiden perhimpunan (minta file asli)
+- `photo-*`: foto Surabaya, live surgery (jpg), trauma, pain (png) (minta resolusi asli)
+- `portrait-*.png`: foto ketua dan presiden perhimpunan (minta file asli)
 
 `banner-landscape.jpg` (desktop) dan `banner-portrait.jpg` (mobile, ≤ 760 px) adalah banner resmi.
 
