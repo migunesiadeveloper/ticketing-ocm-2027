@@ -8,20 +8,20 @@ Situs statis murni: **HTML, CSS, JS saja**, tanpa build, tanpa framework.
 ## Struktur
 
 ```
-website/              ← folder yang di-deploy
-  index.html
-  css/style.css
-  js/config.js        ← satu-satunya berkas yang diubah saat event siap dijual
-  js/main.js
-  assets/img/
+index.html
+css/style.css
+js/config.js        ← satu-satunya berkas yang diubah saat event siap dijual
+js/main.js
+assets/img/
+_materi/            ← PDF draft, banner asli, pratinjau (tidak masuk git)
 ```
 
 ## Lihat di lokal
 
-Buka `website/index.html` langsung di browser, atau jalankan server sederhana:
+Buka `index.html` langsung di browser, atau jalankan server sederhana:
 
 ```
-cd website && python3 -m http.server 8080
+python3 -m http.server 8080
 ```
 
 Tambahkan `?preview=regular` atau `?preview=closed` di URL untuk melihat tampilan periode harga lain.
@@ -32,11 +32,11 @@ Tambahkan `?preview=regular` atau `?preview=closed` di URL untuk melihat tampila
 |---|---|
 | Framework preset | None |
 | Build command | (kosong) |
-| Build output directory | `website` |
+| Build output directory | `/` (root repo) |
 
 ## Menyambungkan tombol Register ke embed
 
-Isi `website/js/config.js`:
+Isi `js/config.js`:
 
 - `EVENT_CODE`: kode event dari dashboard.
 - `ticket.early` / `ticket.regular` per item: kode tiket early bird (sampai 30 Juni 2027) dan regular (1 Juli – 14 Agustus 2027).
@@ -56,4 +56,4 @@ Gambar berikut masih potongan dari banner/PDF draft dan perlu diganti file asli 
 
 `banner-landscape.jpg` (desktop) dan `banner-portrait.jpg` (mobile, ≤ 760 px) adalah banner resmi.
 
-Materi mentah dari panitia (PDF draft, banner ukuran asli) tidak ikut di repo, lihat `.gitignore`.
+Materi mentah dari panitia (PDF draft, banner ukuran asli) disimpan di `_materi/` dan tidak ikut di repo, lihat `.gitignore`.

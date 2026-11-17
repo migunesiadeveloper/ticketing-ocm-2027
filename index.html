@@ -37,7 +37,11 @@
       <span></span><span></span><span></span>
     </button>
   </div>
-  <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile" hidden>
+</header>
+
+<!-- mobile menu: lives outside the header so the header's backdrop-filter cannot trap it -->
+<div class="mobile-nav" id="mobile-nav" hidden>
+  <nav aria-label="Mobile">
     <a href="#about">About</a>
     <a href="#programme">Programme &amp; Schedule</a>
     <a href="#workshops">Workshops</a>
@@ -48,7 +52,15 @@
     <a href="#venue">Venue</a>
     <a href="#contact">Contact</a>
   </nav>
-</header>
+  <div class="mobile-nav-foot">
+    <a href="#registration" class="btn btn-primary btn-lg">Register now</a>
+    <p class="mn-meta"><b>11 – 14 August 2027</b><span>The Westin Surabaya · Academic Hospital UNAIR</span></p>
+    <p class="mn-contact">
+      <a href="https://wa.me/6281331332774" target="_blank" rel="noopener">WhatsApp</a>
+      <a href="mailto:ocm2027official@gmail.com">Email</a>
+    </p>
+  </div>
+</div>
 
 <main>
 
@@ -74,19 +86,39 @@
     </div>
   </div>
 
-  <ol class="wrap day-strip" aria-label="Four days at a glance">
-    <li><span class="d">Wed 11</span><span class="t">Live Surgery &amp; Cadaveric Workshops</span><span class="p">Academic Hospital UNAIR</span></li>
-    <li><span class="d">Thu 12</span><span class="t">APSS Certified Cadaveric Workshop</span><span class="p">Academic Hospital UNAIR</span></li>
-    <li><span class="d">Fri 13</span><span class="t">Scientific Lecture Day 1 · Gala Dinner</span><span class="p">The Westin Surabaya</span></li>
-    <li><span class="d">Sat 14</span><span class="t">Scientific Lecture Day 2 · Interactive Course</span><span class="p">The Westin Surabaya</span></li>
-  </ol>
+  <div class="glance">
+    <div class="wrap">
+      <ol class="day-strip" aria-label="Four days at a glance">
+        <li class="day-ws">
+          <span class="d"><b>11</b><span>Wed<br>Aug</span></span>
+          <span class="t">Live Surgery &amp; Cadaveric Workshops</span>
+          <span class="p">Academic Hospital UNAIR</span>
+        </li>
+        <li class="day-ws">
+          <span class="d"><b>12</b><span>Thu<br>Aug</span></span>
+          <span class="t">APSS Certified Cadaveric Workshop</span>
+          <span class="p">Academic Hospital UNAIR</span>
+        </li>
+        <li class="day-sci">
+          <span class="d"><b>13</b><span>Fri<br>Aug</span></span>
+          <span class="t">Scientific Lecture Day 1 &amp; Gala Dinner</span>
+          <span class="p">The Westin Surabaya</span>
+        </li>
+        <li class="day-sci">
+          <span class="d"><b>14</b><span>Sat<br>Aug</span></span>
+          <span class="t">Scientific Lecture Day 2 &amp; Interactive Course</span>
+          <span class="p">The Westin Surabaya</span>
+        </li>
+      </ol>
+    </div>
+  </div>
 </section>
 
 <!-- ============ WELCOME / ABOUT ============ -->
 <section class="welcome" id="about">
   <figure class="welcome-photo">
     <img src="assets/img/photo-surabaya.jpg" alt="Suro and Boyo monument at Kenjeran, Surabaya, at sunset" loading="lazy">
-    <figcaption class="welcome-photo-title">Welcome to Surabaya</figcaption>
+    <figcaption class="welcome-photo-title"><span>Welcome to</span> Surabaya</figcaption>
   </figure>
   <div class="wrap welcome-grid">
     <div>

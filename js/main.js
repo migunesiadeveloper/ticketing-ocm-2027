@@ -174,10 +174,13 @@
   var mnav = $("#mobile-nav");
   function setNav(open) {
     toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
     mnav.hidden = !open;
     document.body.classList.toggle("nav-open", open);
   }
   toggle.addEventListener("click", function () { setNav(mnav.hidden); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !mnav.hidden) setNav(false); });
+  window.matchMedia("(min-width: 901px)").addEventListener("change", function (m) { if (m.matches) setNav(false); });
   $$("a", mnav).forEach(function (a) { a.addEventListener("click", function () { setNav(false); }); });
 
   /* ---------- header + sticky CTA state ---------- */
