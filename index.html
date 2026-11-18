@@ -550,6 +550,17 @@
     <button class="reg-close" data-close aria-label="Close">×</button>
   </div>
   <div class="reg-dialog-body" data-reg-body></div>
+  <!-- asked before closing an open form, so nobody leaves (and re-orders) by accident -->
+  <div class="reg-confirm" data-reg-confirm hidden role="alertdialog" aria-modal="true" aria-labelledby="reg-confirm-title" aria-describedby="reg-confirm-desc">
+    <div class="reg-confirm-box">
+      <p class="reg-confirm-title" id="reg-confirm-title">Close the registration form?</p>
+      <p id="reg-confirm-desc">Anything you have filled in will be lost. If you have already placed an order or paid, please check your email for the confirmation before registering again, so you are not charged twice.</p>
+      <div class="reg-confirm-actions">
+        <button class="btn btn-primary" data-confirm-stay>Continue registration</button>
+        <button class="btn btn-ghost" data-confirm-close>Yes, close</button>
+      </div>
+    </div>
+  </div>
 </dialog>
 
 

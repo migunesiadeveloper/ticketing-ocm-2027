@@ -161,15 +161,51 @@
     });
   });
 
-  $$("dialog").forEach(function (d) {
-    d.addEventListener("click", function (e) {
-      if (e.target === d || e.target.closest("[data-close]")) d.close();
-    });
-    d.addEventListener("close", function () {
-      document.body.classList.remove("dialog-open");
-      var body = $("[data-reg-body]", d);
-      if (body) body.innerHTML = ""; // stop the embed when closed
-    });
+  /* ---------- closing the registration dialog ----------
+   * While the embed form is open, every way out (× button, Esc, Android back)
+   * asks first, so a buyer does not lose an order by accident and start a
+   * second one. The "opens soon"/"closed" messages close straight away. */
+  var regConfirm = $("[data-reg-confirm]", regDialog);
+  var allowClose = false;
+
+  function embedOpen() { return !!$("[data-reg-body] iframe", regDialog); }
+
+  function askClose() {
+    if (!embedOpen()) { allowClose = true; regDialog.close(); return; }
+    regConfirm.hidden = false;
+    $("[data-confirm-stay]", regConfirm).focus();
+  }
+
+  function stay() { regConfirm.hidden = true; }
+
+  regDialog.addEventListener("click", function (e) {
+    if (e.target.closest("[data-confirm-stay]")) { stay(); return; }
+    if (e.target.closest("[data-confirm-close]")) { allowClose = true; regDialog.close(); return; }
+    if (e.target.closest("[data-close]")) askClose();
+  });
+
+  // Esc / Android back
+  regDialog.addEventListener("cancel", function (e) {
+    e.preventDefault();
+    if (!regConfirm.hidden) stay(); else askClose();
+  });
+
+  regDialog.addEventListener("close", function () {
+    if (!allowClose && embedOpen()) {
+      // the browser closed it without asking (e.g. repeated Esc): reopen, form intact
+      regDialog.showModal();
+      askClose();
+      return;
+    }
+    allowClose = false;
+    regConfirm.hidden = true;
+    document.body.classList.remove("dialog-open");
+    $("[data-reg-body]", regDialog).innerHTML = ""; // stop the embed when closed
+  });
+
+  // refresh / closing the tab while the form is open
+  window.addEventListener("beforeunload", function (e) {
+    if (regDialog.open && embedOpen()) { e.preventDefault(); e.returnValue = ""; }
   });
 
   /* ---------- tabs (programme days, welcome messages) ---------- */

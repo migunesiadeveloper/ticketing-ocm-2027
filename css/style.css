@@ -490,13 +490,21 @@ button { font: inherit; cursor: pointer; }
 /* ---------- dialogs ---------- */
 dialog { border: 0; padding: 0; color: var(--ink); }
 dialog::backdrop { background: rgba(20, 38, 37, .55); backdrop-filter: blur(3px); }
-.reg-dialog { width: min(760px, 94vw); height: min(880px, 92vh); border-radius: 18px; overflow: hidden; display: none; flex-direction: column; }
+/* full screen on every device */
+.reg-dialog { position: fixed; inset: 0; margin: 0; width: 100vw; max-width: 100vw; height: 100vh; height: 100dvh; max-height: 100dvh; border-radius: 0; overflow: hidden; display: none; flex-direction: column; }
 .reg-dialog[open] { display: flex; }
 .reg-dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 12px 22px; background: var(--teal-700); color: #fff; flex: none; }
 .reg-dialog-head p { margin: 0; font-weight: 600; }
 .reg-close { border: 0; background: rgba(255, 255, 255, .15); color: inherit; width: 36px; height: 36px; border-radius: 50%; font-size: 22px; line-height: 1; }
 .reg-dialog-body { flex: 1; display: flex; flex-direction: column; min-height: 0; background: var(--mist-0); }
 .reg-dialog-body iframe { flex: 1; width: 100%; border: 0; background: #fff; }
+.reg-confirm { position: absolute; inset: 0; z-index: 2; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(20, 38, 37, .55); }
+.reg-confirm[hidden] { display: none; }
+.reg-confirm-box { width: 100%; max-width: 440px; background: #fff; border-radius: 16px; padding: 26px 24px 22px; box-shadow: 0 20px 50px -20px rgba(20, 38, 37, .6); }
+.reg-confirm-box p { margin: 0 0 18px; color: var(--ink-2); line-height: 1.55; }
+.reg-confirm-box .reg-confirm-title { margin-bottom: 8px; font-size: 20px; font-weight: 600; color: var(--teal-800); }
+.reg-confirm-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.reg-confirm-actions .btn { flex: 1 1 auto; justify-content: center; }
 .reg-newtab { text-align: center; padding: 10px; font-size: 13.5px; }
 .reg-soon { margin: auto; padding: 40px 32px; max-width: 460px; text-align: center; color: var(--ink-2); }
 .reg-soon-title { font-size: 26px; font-weight: 600; color: var(--teal-800); }
@@ -647,7 +655,6 @@ dialog::backdrop { background: rgba(20, 38, 37, .55); backdrop-filter: blur(3px)
   .mobile-cta span { font-size: 13px; opacity: .8; }
   .mobile-cta .btn { background: #fff; color: var(--teal-800); box-shadow: none; }
 
-  .reg-dialog { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
