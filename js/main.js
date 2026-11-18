@@ -15,10 +15,39 @@
 
   var currency = "IDR";
 
+  /* ---------- USD = IDR price / today's rate ----------
+   * Same rate source as the Migunesia embed (PayPal checkout), so the estimate
+   * follows what PayPal will charge. Excludes the PayPal fee on purpose: the
+   * embed shows that fee before payment. If the rate cannot load, fall back to
+   * the reference USD in config.js. */
+  var usdRate = null;
+
   function money(pair) {
-    if (currency === "USD") return "USD " + pair[1].toLocaleString("en-US");
+    if (currency === "USD") {
+      var usd = usdRate ? Math.round(pair[0] / usdRate) : pair[1];
+      return "&asymp; USD " + usd.toLocaleString("en-US");
+    }
     return "IDR " + pair[0].toLocaleString("en-US");
   }
+
+  function renderFxNote() {
+    var el = $("[data-fx-rate]");
+    if (!el) return;
+    el.textContent = usdRate
+      ? " Converted at today's rate: 1 USD ≈ IDR " + Math.round(usdRate).toLocaleString("en-US") + "."
+      : "";
+  }
+
+  fetch(C.FX_URL)
+    .then(function (res) { return res.ok ? res.json() : null; })
+    .then(function (data) {
+      var idr = data && data.rates && Number(data.rates.IDR);
+      if (!(idr > 0)) return;
+      usdRate = idr;
+      renderFxNote();
+      if (currency === "USD") { renderWorkshopPrices(); renderLectureRows(); }
+    })
+    .catch(function () { /* keep reference USD */ });
 
   /* ---------- workshop prices ---------- */
   function renderWorkshopPrices() {

@@ -19,7 +19,11 @@ window.OCM_CONFIG = {
   EARLY_END: "2027-06-30T23:59:59+07:00",
   REGULAR_END: "2027-08-14T23:59:59+07:00",
 
-  // prices: [IDR, USD reference]
+  // USD on the page = IDR price / today's rate from this source (same as the embed).
+  FX_URL: "https://open.er-api.com/v6/latest/USD",
+
+  // prices: [IDR, USD reference]. The USD reference (flyer figures) is shown
+  // only when today's rate cannot be loaded.
   workshops: {
     spine:  { name: "Spine Bundle (APSS) + 2-Day Symposium", early: [22500000, 1235], regular: [25000000, 1372], ticket: { early: "", regular: "" } },
     trauma: { name: "Cadaveric Workshop – Trauma",          early: [6000000, 330],    regular: [7000000, 384],    ticket: { early: "", regular: "" } },
