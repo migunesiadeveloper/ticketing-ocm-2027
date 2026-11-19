@@ -483,6 +483,8 @@ button { font: inherit; cursor: pointer; }
 .footer-societies { height: 38px; width: auto; mix-blend-mode: multiply; filter: brightness(1.12) contrast(1.1); }
 .site-footer p { margin: 0; }
 .powered { margin-left: auto !important; }
+.powered a { color: var(--teal-700); font-weight: 600; text-decoration: none; }
+.powered a:hover, .powered a:focus-visible { text-decoration: underline; }
 
 /* ---------- mobile sticky CTA ---------- */
 .mobile-cta { display: none; }
