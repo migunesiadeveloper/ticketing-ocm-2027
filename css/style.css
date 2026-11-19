@@ -285,6 +285,7 @@ button { font: inherit; cursor: pointer; }
 .ws h3 { font-size: clamp(24px, 2.4vw, 32px); font-weight: 600; color: var(--teal-900); }
 .ws-date { margin: 10px 0 18px; font-weight: 600; color: var(--ink); }
 .ws-date span { font-weight: 400; color: var(--steel); }
+.ws-for { display: inline-block; margin: -6px 0 18px; padding: 4px 12px; border: 1px solid var(--teal-600); border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--teal-700); }
 .ws-points { margin: 0 0 22px; padding: 0; list-style: none; display: grid; gap: 6px; }
 .ws-points li { padding-left: 22px; position: relative; color: var(--ink-2); }
 .ws-points li::before { content: ""; position: absolute; left: 0; top: .72em; width: 10px; height: 2px; background: var(--copper); }
