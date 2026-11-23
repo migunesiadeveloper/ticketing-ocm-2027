@@ -63,7 +63,7 @@ Tiket OCM privat (`is_public = N`), jadi daftar tiket per event tidak dipakai.
 - `categories`: kategori mana menampilkan kartu apa (judul, isi paket, tanggal).
 - `hotels`: info hotel (hanya informasi; kamar dipilih sebagai add-on di form, harga dashboard yang berlaku).
 
-Status kartu: Register (tiket dalam periode jual), Opens soon (belum mulai), Sold out (kuota habis), Not available (tiket nonaktif), Coming soon (kode belum diisi).
+Status kartu: Register (tiket dalam periode jual), Opens soon (belum mulai), Sold out (kuota habis), Coming soon (kode belum diisi atau tiket nonaktif di dashboard).
 Kalau API tidak terjangkau, tombol tetap jalan dan Early/Regular dipilih dari `EARLY_END`/`REGULAR_END` di config.
 
 Tombol membuka `https://embed.migunesia-ticket.com/?event=KODE&type=app_2&ticket=KODE_TIKET` di popup penuh layar, dengan konfirmasi sebelum ditutup.

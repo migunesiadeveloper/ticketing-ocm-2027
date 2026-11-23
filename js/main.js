@@ -133,7 +133,7 @@
     soldout: "Sold out",
     upcoming: "Opens soon",
     closed: "Registration closed",
-    off: "Not available"
+    off: "Coming soon" // inactive in the dashboard (e.g. price not final yet)
   };
 
   function renderItems() {
