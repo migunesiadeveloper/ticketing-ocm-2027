@@ -5,125 +5,253 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
-  /* ---------- period (WIB) ---------- */
+  var params = new URLSearchParams(location.search);
   // ?preview=early|regular|closed lets the committee review each state.
-  var preview = new URLSearchParams(location.search).get("preview");
+  var preview = params.get("preview");
   var now = Date.now();
-  var period = preview || (now <= Date.parse(C.EARLY_END) ? "early"
-    : now <= Date.parse(C.REGULAR_END) ? "regular" : "closed");
-  document.documentElement.dataset.period = period;
+  var slug = (params.get("category") || "").trim().toLowerCase();
+  var cat = C.categories.filter(function (c) { return c.slug === slug; })[0];
 
+  /* ---------- helpers ---------- */
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (ch) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+    });
+  }
+
+  // The API sends WIB datetimes without an offset ("2027-06-30T23:59:00").
+  function wib(s) {
+    if (!s) return null;
+    var t = Date.parse(/(Z|[+-]\d\d:?\d\d)$/i.test(s) ? s : s + "+07:00");
+    return isNaN(t) ? null : t;
+  }
+
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function fmtDate(t) {
+    var d = new Date(t + 7 * 3600000); // show in WIB
+    return d.getUTCDate() + " " + MONTHS[d.getUTCMonth()] + " " + d.getUTCFullYear();
+  }
+
+  /* ---------- currency: USD = IDR price / today's rate ----------
+   * Same rate source as the Migunesia embed (PayPal checkout). Excludes the
+   * PayPal fee on purpose: the embed shows that fee before payment. The USD
+   * button only appears once the rate has loaded. */
   var currency = "IDR";
-
-  /* ---------- USD = IDR price / today's rate ----------
-   * Same rate source as the Migunesia embed (PayPal checkout), so the estimate
-   * follows what PayPal will charge. Excludes the PayPal fee on purpose: the
-   * embed shows that fee before payment. If the rate cannot load, fall back to
-   * the reference USD in config.js. */
   var usdRate = null;
 
-  function money(pair) {
-    if (currency === "USD") {
-      var usd = usdRate ? Math.round(pair[0] / usdRate) : pair[1];
-      return "&asymp; USD " + usd.toLocaleString("en-US");
+  function money(idr) {
+    if (idr == null) return "–";
+    if (currency === "USD" && usdRate) return "&asymp; USD " + Math.round(idr / usdRate).toLocaleString("en-US");
+    return "IDR " + Number(idr).toLocaleString("en-US");
+  }
+
+  /* ---------- chooser (no or unknown ?category) ---------- */
+  if (!cat) {
+    $('[data-view="chooser"]').hidden = false;
+    $("[data-cats]").innerHTML = C.categories.map(function (c) {
+      return '<li><a class="cat-card" href="?category=' + encodeURIComponent(c.slug) + '">' +
+        '<span class="cat-name">' + esc(c.name) + "</span>" +
+        (c.sub ? '<span class="cat-sub-small">' + esc(c.sub) + "</span>" : "") +
+        '<span class="cat-go" aria-hidden="true">&rarr;</span></a></li>';
+    }).join("");
+  } else {
+    document.title = "OCM 2027 · Registration · " + cat.name;
+    $('[data-view="category"]').hidden = false;
+    $("[data-cat-name]").textContent = cat.name;
+    var subEl = $("[data-cat-sub]");
+    if (cat.sub) subEl.textContent = cat.sub; else subEl.hidden = true;
+    // "bundles include the lecture" only matters where bundles are sold
+    $("[data-bundle-note]").hidden = !cat.items.some(function (item) { return item.kind !== "lecture"; });
+  }
+
+  /* ---------- tickets: live price / period / quota from the dashboard ---------- */
+  var tickets = {};        // code -> API ticket, or { missing: true } when the code is unknown
+  var loaded = false;      // true once every request has finished
+  var apiFailed = false;   // a request failed (network / server): fall back to config dates
+
+  function codesOf(item) {
+    var out = [];
+    [item.ticket.early, item.ticket.regular].forEach(function (c) { if (c && out.indexOf(c) < 0) out.push(c); });
+    return out;
+  }
+
+  // Where one ticket stands right now.
+  function phase(t) {
+    if (!t || t.missing) return "na";
+    if (t.is_active !== "Y") return "off";
+    var s = wib(t.period_start), e = wib(t.period_end);
+    if (s && now < s) return "upcoming";
+    if (e && now > e) return "ended";
+    if (t.quota > 0 && t.quota_used >= t.quota) return "soldout";
+    return "open";
+  }
+
+  // What a card shows: state, the ticket code to register with, price rows.
+  function resolve(item) {
+    var codes = codesOf(item);
+    if (!codes.length) return { state: "soon", prices: [] };
+
+    var ec = item.ticket.early || codes[0];
+    var rc = item.ticket.regular || codes[0];
+    var single = ec === rc;
+    var e = tickets[ec], r = tickets[rc];
+
+    var prices = single
+      ? [{ label: "", idr: e && !e.missing ? e.price : null, code: ec }]
+      : [
+          { label: "Early Bird", note: e && wib(e.period_end) ? "until " + fmtDate(wib(e.period_end)) : "", idr: e && !e.missing ? e.price : null, code: ec },
+          { label: "Regular", note: r && wib(r.period_start) ? "from " + fmtDate(wib(r.period_start)) : "", idr: r && !r.missing ? r.price : null, code: rc }
+        ];
+
+    var state, code;
+    if (preview === "closed") {
+      state = "closed";
+    } else if (preview === "early" || preview === "regular") {
+      code = preview === "early" ? ec : rc;
+      state = phase(tickets[code]) === "off" ? "off" : "open";
+    } else if (loaded && !apiFailed) {
+      var phases = codes.map(function (c) { return phase(tickets[c]); });
+      var open = phases.indexOf("open");
+      if (open >= 0) { state = "open"; code = codes[open]; }
+      else if (phases.indexOf("soldout") >= 0) state = "soldout";
+      else if (phases.indexOf("upcoming") >= 0) state = "upcoming";
+      else if (phases.every(function (p) { return p === "off" || p === "na"; })) state = "off";
+      else state = "closed";
+    } else {
+      // loading, or the API could not be reached: pick by the config dates
+      var p = now <= Date.parse(C.EARLY_END) ? "early" : now <= Date.parse(C.REGULAR_END) ? "regular" : "closed";
+      if (p === "closed") state = "closed";
+      else { state = "open"; code = p === "early" ? ec : rc; }
     }
-    return "IDR " + pair[0].toLocaleString("en-US");
+
+    prices.forEach(function (row) { row.current = !single && state === "open" && row.code === code; });
+    return { state: state, code: code, prices: prices };
+  }
+
+  var STATUS = {
+    soon: "Coming soon",
+    soldout: "Sold out",
+    upcoming: "Opens soon",
+    closed: "Registration closed",
+    off: "Not available"
+  };
+
+  function renderItems() {
+    if (!cat) return;
+    $("[data-items]").innerHTML = cat.items.map(function (item, i) {
+      var r = resolve(item);
+      var priceHtml = r.prices.length
+        ? '<dl class="t-prices">' + r.prices.map(function (row) {
+            return '<div' + (row.current ? ' class="is-current"' : "") + ">" +
+              "<dt>" + (row.label ? esc(row.label) + (row.note ? " <small>" + esc(row.note) + "</small>" : "") : '<span class="sr">Price</span>') + "</dt>" +
+              "<dd>" + (loaded || row.idr != null ? money(row.idr) : '<span class="t-loading">Loading…</span>') + "</dd></div>";
+          }).join("") + "</dl>"
+        : "";
+      var action = r.state === "open"
+        ? '<button class="btn btn-primary" data-register="' + i + '">Register</button>'
+        : '<span class="t-status">' + STATUS[r.state] + "</span>";
+      return '<li class="ticket t-' + esc(item.kind) + (r.state === "open" ? "" : " is-unavailable") + '">' +
+        '<div class="t-main">' +
+          "<h3>" + (item.label ? '<span class="tag">' + esc(item.label) + "</span> " : "") + esc(item.title) + "</h3>" +
+          (item.includes ? '<p class="t-inc">' + esc(item.includes) + "</p>" : "") +
+          (item.dates ? '<p class="t-dates">' + esc(item.dates) + "</p>" : "") +
+          (item.addon ? '<p class="t-addon">' + esc(item.addon) + "</p>" : "") +
+        "</div>" +
+        '<div class="t-side">' + priceHtml + action + "</div>" +
+      "</li>";
+    }).join("");
+  }
+
+  function renderHotels() {
+    if (!cat) return;
+    var nights = cat.hotelNights.slice().sort();
+    $("[data-hotels]").innerHTML = C.hotels.map(function (h) {
+      return '<article class="hotel"><p class="hotel-kicker">' + esc(h.kicker) + "</p><h4>" + esc(h.name) + "</h4><dl>" +
+        nights.map(function (n) {
+          return "<div><dt>" + n + " nights <span>" + esc(C.stays[n]) + "</span></dt><dd>" + money(h.price[n]) + "</dd></div>";
+        }).join("") + "</dl></article>";
+    }).join("");
+  }
+
+  // Header line: which rate applies now (from the first Early ticket's dates).
+  function renderPeriodLabel() {
+    if (!cat) return;
+    var el = $("[data-period-label]");
+    var earlyEnd = Date.parse(C.EARLY_END);
+    var regularEnd = Date.parse(C.REGULAR_END);
+    cat.items.some(function (item) {
+      var e = tickets[item.ticket.early];
+      if (!item.ticket.early || item.ticket.early === item.ticket.regular || !e || e.missing) return false;
+      earlyEnd = wib(e.period_end) || earlyEnd;
+      return true;
+    });
+    var p = preview || (now <= earlyEnd ? "early" : now <= regularEnd ? "regular" : "closed");
+    // one price all along (e.g. Resident, Medical Student): no Early/Regular line
+    var hasTiers = cat.items.some(function (item) { return item.ticket.early && item.ticket.regular && item.ticket.early !== item.ticket.regular; });
+    el.hidden = !hasTiers && p !== "closed";
+    if (p === "early") {
+      var days = Math.ceil((earlyEnd - now) / 86400000);
+      el.innerHTML = "<b>Early Bird rate</b> until " + fmtDate(earlyEnd) +
+        (preview ? "" : ' <span class="countdown">' + (days > 1 ? days + " days left" : "last day") + "</span>");
+    } else if (p === "regular") {
+      el.innerHTML = "<b>Regular rate</b> applies now";
+    } else {
+      el.textContent = "Registration has closed";
+    }
   }
 
   function renderFxNote() {
     var el = $("[data-fx-rate]");
-    if (!el) return;
-    el.textContent = usdRate
-      ? " Converted at today's rate: 1 USD ≈ IDR " + Math.round(usdRate).toLocaleString("en-US") + "."
-      : "";
+    if (el) el.textContent = usdRate ? " Converted at today's rate: 1 USD ≈ IDR " + Math.round(usdRate).toLocaleString("en-US") + "." : "";
   }
 
-  fetch(C.FX_URL)
-    .then(function (res) { return res.ok ? res.json() : null; })
-    .then(function (data) {
-      var idr = data && data.rates && Number(data.rates.IDR);
-      if (!(idr > 0)) return;
-      usdRate = idr;
-      renderFxNote();
-      if (currency === "USD") { renderWorkshopPrices(); renderLectureRows(); }
-    })
-    .catch(function () { /* keep reference USD */ });
+  function renderAll() { renderItems(); renderHotels(); renderPeriodLabel(); }
 
-  /* ---------- workshop prices ---------- */
-  function renderWorkshopPrices() {
-    $$("[data-price]").forEach(function (el) {
-      var w = C.workshops[el.dataset.price];
-      var active = period === "regular" ? "regular" : "early";
-      var other = active === "early" ? "regular" : "early";
-      el.innerHTML =
-        '<span class="price-label">' + (active === "early" ? "Early rate · until 30 June 2027" : "Regular rate · until 14 August 2027") + "</span>" +
-        '<span class="price-now">' + money(w[active]) + "</span>" +
-        '<span class="price-other">' + (other === "regular" ? "Regular " : "Early ") + money(w[other]) + "</span>";
+  if (cat) {
+    $(".currency").hidden = true; // until today's rate has loaded
+    renderAll();
+
+    var all = [];
+    cat.items.forEach(function (item) { codesOf(item).forEach(function (c) { if (all.indexOf(c) < 0) all.push(c); }); });
+    Promise.all(all.map(function (code) {
+      return fetch(C.API_BASE + "tickets/" + encodeURIComponent(code))
+        .then(function (res) {
+          if (res.status === 404) { tickets[code] = { missing: true }; return; }
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.json().then(function (t) { tickets[code] = t; });
+        })
+        .catch(function () { apiFailed = true; });
+    })).then(function () { loaded = true; renderAll(); });
+
+    fetch(C.FX_URL)
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        var idr = data && data.rates && Number(data.rates.IDR);
+        if (!(idr > 0)) return;
+        usdRate = idr;
+        $(".currency").hidden = false;
+        renderFxNote();
+      })
+      .catch(function () { /* IDR only */ });
+
+    $$("[data-currency]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        currency = btn.dataset.currency;
+        $$("[data-currency]").forEach(function (b) { b.setAttribute("aria-pressed", String(b === btn)); });
+        renderItems();
+        renderHotels();
+      });
     });
   }
-
-  /* ---------- lecture table ---------- */
-  function renderLectureRows() {
-    var body = $("[data-reg-rows]");
-    body.innerHTML = C.lecture.map(function (row) {
-      var same = row.early[0] === row.regular[0];
-      return '<tr>' +
-        '<th scope="row">' + row.name + '</th>' +
-        '<td data-col="early" data-label="Early · until 30 Jun">' + money(row.early) + '</td>' +
-        '<td data-col="regular" data-label="Regular · until 14 Aug">' + (same ? '<span class="same">' + money(row.regular) + '</span>' : money(row.regular)) + '</td>' +
-        '<td><button class="btn btn-small" data-register-lecture="' + row.id + '">Register</button></td>' +
-        '</tr>';
-    }).join("");
-
-    $$("[data-col]").forEach(function (el) {
-      el.classList.toggle("is-active", el.dataset.col === period);
-    });
-  }
-
-  function renderPeriodLabel() {
-    var el = $("[data-period-label]");
-    var mob = $("[data-mobile-cta-note]");
-    if (period === "early") {
-      el.innerHTML = "<b>Early rate</b> applies now";
-    } else if (period === "regular") {
-      el.innerHTML = "<b>Regular rate</b> applies now";
-      if (mob) mob.textContent = "Regular rate until 14 Aug";
-    } else {
-      el.textContent = "Registration has closed";
-      if (mob) mob.textContent = "Registration closed";
-    }
-  }
-
-  /* ---------- countdown to early deadline ---------- */
-  function renderCountdown() {
-    var el = $("[data-countdown]");
-    if (!el) return;
-    if (period !== "early") { $("[data-deadline]").hidden = true; return; }
-    var days = Math.ceil((Date.parse(C.EARLY_END) - now) / 86400000);
-    el.textContent = days > 1 ? days + " days left" : "last day";
-  }
-
-  /* ---------- currency toggle ---------- */
-  $$("[data-currency]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      currency = btn.dataset.currency;
-      $$("[data-currency]").forEach(function (b) { b.setAttribute("aria-pressed", String(b === btn)); });
-      renderWorkshopPrices();
-      renderLectureRows();
-    });
-  });
 
   /* ---------- registration dialog ---------- */
   var regDialog = $("#reg-dialog");
 
-  function openRegistration(item) {
-    var code = item && item.ticket[period === "regular" ? "regular" : "early"];
-    $("#reg-dialog-title").textContent = item ? item.name : "Registration";
+  function openRegistration(title, code) {
+    $("#reg-dialog-title").textContent = title || "Registration";
     var body = $("[data-reg-body]");
 
-    if (period === "closed") {
-      body.innerHTML = '<div class="reg-soon"><p class="reg-soon-title">Registration has closed</p><p>Please contact the secretariat for on-site arrangements.</p></div>';
-    } else if (!C.EVENT_CODE || !code) {
+    if (!C.EVENT_CODE || !code) {
       body.innerHTML =
         '<div class="reg-soon">' +
         '<p class="reg-soon-title">Registration opens soon</p>' +
@@ -141,25 +269,14 @@
   }
 
   document.addEventListener("click", function (e) {
-    var w = e.target.closest("[data-register]");
-    if (w) { openRegistration(C.workshops[w.dataset.register]); return; }
-    var l = e.target.closest("[data-register-lecture]");
-    if (l) {
-      var row = C.lecture.filter(function (r) { return r.id === l.dataset.registerLecture; })[0];
-      openRegistration({ name: "Scientific Lecture – " + row.name, ticket: row.ticket });
-    }
+    var b = e.target.closest("[data-register]");
+    if (!b || !cat) return;
+    var item = cat.items[Number(b.dataset.register)];
+    var r = resolve(item);
+    if (r.state !== "open") { renderItems(); return; } // changed since render (e.g. sold out)
+    openRegistration((item.label ? item.label + " " : "") + item.title + " · " + cat.name, r.code);
   });
 
-  /* ---------- welcome messages: inline "continue reading" ---------- */
-  $$(".msg-more").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      var body = document.getElementById(btn.getAttribute("aria-controls"));
-      var open = btn.getAttribute("aria-expanded") !== "true";
-      body.classList.toggle("is-open", open);
-      btn.setAttribute("aria-expanded", String(open));
-      btn.textContent = open ? "Show less" : "Continue reading";
-    });
-  });
 
   /* ---------- closing the registration dialog ----------
    * While the embed form is open, every way out (× button, Esc, Android back)
@@ -207,65 +324,4 @@
   window.addEventListener("beforeunload", function (e) {
     if (regDialog.open && embedOpen()) { e.preventDefault(); e.returnValue = ""; }
   });
-
-  /* ---------- tabs (programme days, welcome messages) ---------- */
-  $$('[role="tablist"]').forEach(function (list) {
-    var tabs = $$('[role="tab"]', list);
-    function select(tab, focus) {
-      tabs.forEach(function (t) {
-        var on = t === tab;
-        t.setAttribute("aria-selected", String(on));
-        t.tabIndex = on ? 0 : -1;
-        document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
-      });
-      if (focus) tab.focus({ preventScroll: true });
-      // keep the chosen chip visible inside a scrolling strip, without moving the page
-      var l = tab.offsetLeft - list.offsetLeft, r = l + tab.offsetWidth;
-      if (l < list.scrollLeft || r > list.scrollLeft + list.clientWidth) {
-        list.scrollTo({ left: Math.max(0, l - 16), behavior: "smooth" });
-      }
-    }
-    tabs.forEach(function (t, i) {
-      t.addEventListener("click", function () { select(t, false); });
-      t.addEventListener("keydown", function (e) {
-        var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
-        if (d) select(tabs[(i + d + tabs.length) % tabs.length], true);
-      });
-    });
-  });
-
-  /* ---------- mobile nav ---------- */
-  var toggle = $(".nav-toggle");
-  var mnav = $("#mobile-nav");
-  function setNav(open) {
-    toggle.setAttribute("aria-expanded", String(open));
-    toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-    mnav.hidden = !open;
-    document.body.classList.toggle("nav-open", open);
-  }
-  toggle.addEventListener("click", function () { setNav(mnav.hidden); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !mnav.hidden) setNav(false); });
-  window.matchMedia("(min-width: 901px)").addEventListener("change", function (m) { if (m.matches) setNav(false); });
-  $$("a", mnav).forEach(function (a) { a.addEventListener("click", function () { setNav(false); }); });
-
-  /* ---------- header + sticky CTA state ---------- */
-  var header = $(".site-header");
-  var cta = $(".mobile-cta");
-  var reg = $("#registration");
-  function onScroll() {
-    var y = window.scrollY;
-    header.classList.toggle("is-scrolled", y > 8);
-    // phones: the bar appears once the buttons under the banner are out of view
-    var bar = $(".hero-bar").getBoundingClientRect();
-    var r = reg.getBoundingClientRect();
-    var atReg = r.top < window.innerHeight && r.bottom > 0;
-    cta.classList.toggle("is-visible", bar.bottom < 0 && !atReg);
-  }
-  window.addEventListener("scroll", onScroll, { passive: true });
-
-  renderWorkshopPrices();
-  renderLectureRows();
-  renderPeriodLabel();
-  renderCountdown();
-  onScroll();
 })();
