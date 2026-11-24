@@ -14,6 +14,10 @@
  * dashboard, not here. This file only says WHICH ticket appears in WHICH
  * category, plus the display text of each card.
  *
+ * PACKAGE CONTENTS ("includes" line on a card): the ticket's "Deskripsi tiket"
+ * in the dashboard wins when filled; the `includes` text below is only the
+ * fallback for tickets without a description.
+ *
  * Early and Regular are separate tickets in the dashboard, so each card has two
  * codes. When both are the same code (one price all along), put it twice.
  * A code left "" shows the card as "Coming soon" (ticket not created yet).

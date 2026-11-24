@@ -86,10 +86,21 @@
     return "open";
   }
 
+  // Package contents: the ticket description from the dashboard (first filled one:
+  // the ticket being sold now, then Early, then Regular); config text otherwise.
+  function describe(codes) {
+    for (var i = 0; i < codes.length; i++) {
+      var t = codes[i] && tickets[codes[i]];
+      var d = t && !t.missing && typeof t.description === "string" ? t.description.trim() : "";
+      if (d) return d;
+    }
+    return "";
+  }
+
   // What a card shows: state, the ticket code to register with, price rows.
   function resolve(item) {
     var codes = codesOf(item);
-    if (!codes.length) return { state: "soon", prices: [] };
+    if (!codes.length) return { state: "soon", prices: [], includes: item.includes };
 
     var ec = item.ticket.early || codes[0];
     var rc = item.ticket.regular || codes[0];
@@ -125,7 +136,7 @@
     }
 
     prices.forEach(function (row) { row.current = !single && state === "open" && row.code === code; });
-    return { state: state, code: code, prices: prices };
+    return { state: state, code: code, prices: prices, includes: describe([code, ec, rc]) || item.includes };
   }
 
   var STATUS = {
@@ -153,7 +164,7 @@
       return '<li class="ticket t-' + esc(item.kind) + (r.state === "open" ? "" : " is-unavailable") + '">' +
         '<div class="t-main">' +
           "<h3>" + (item.label ? '<span class="tag">' + esc(item.label) + "</span> " : "") + esc(item.title) + "</h3>" +
-          (item.includes ? '<p class="t-inc">' + esc(item.includes) + "</p>" : "") +
+          (r.includes ? '<p class="t-inc">' + esc(r.includes) + "</p>" : "") +
           (item.dates ? '<p class="t-dates">' + esc(item.dates) + "</p>" : "") +
           (item.addon ? '<p class="t-addon">' + esc(item.addon) + "</p>" : "") +
         "</div>" +
