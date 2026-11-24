@@ -27,16 +27,19 @@
   var T = {
     // ---- Orthopaedic Consultants (Sub-Specialist / Clinical Fellow) ----
     con_spine:   { early: "69CnRTTWynveto5Pq9Yj6aAKhqiTVEOsPAzF5dHKI8XMObHVu89dQ4tkV2p7t7SHzLstL6sqDhp", regular: "mfQDEjObCY7n9fI2PC9Wd7uSuKsZlBHBhaZuceG8Culuy0nYbSlqnZhDurV2oBxpEQobOxaiySQ" },
+    // SPINE ICL: on hold (committee still confirming, 24 Nov). Card hidden below.
     con_icl:     { early: "", regular: "" },
     con_trauma1: { early: "", regular: "" },
     con_trauma2: { early: "", regular: "" },
     con_trauma3: { early: "", regular: "" },
     con_trauma4: { early: "", regular: "" },
     con_pain:    { early: "qEAfAeAxvsUPin5txcyiixt0bEkHleaJ7atpE7K1dNr9izntjZEB1tajByjqwdBzvmJytRGIemT", regular: "a67icZ2TafFWkLt2FQ5Ynb4WqkT6nHkZnXMZ4sQC4CQykm2fuvqK8glDiWEU3cH9ghda8QjAAO8" },
-    con_lec_sub: { early: "Axq4ueTZQTP1srt5vlfNNRDpdV4O0G1D14OVBQCx80tnVCRmIyK8hrdsXGdTxHt2j8Ur1FwpcBF", regular: "rVrkTVPFqliMffDfiRYs2jJeP3SC9FEKnYgjlkp2uCgb9GTgajsg7DIxKNxJaNi4z68Qowo5EXq" },
-    con_lec_cf:  { early: "WntzKyNarVbUqEEefoAFAJ78821qkA5Drak5Vk0gU1QE0xU1lqNt9RwvHN3rPrVqKxEYGTk5LXI", regular: "hzlmQwV9NrnvNQzb4CFggAD1TnWTZgjf0ugXqri0hGulzQ8TJfu3RzLpOzDr5bASSr6fyQ8nLtB" },
+    // One Lecture ticket for Sub-Specialist + Clinical Fellow (client, 24 Nov):
+    // the former "Sub-Specialist" tickets, renamed in the dashboard.
+    con_lec:     { early: "Axq4ueTZQTP1srt5vlfNNRDpdV4O0G1D14OVBQCx80tnVCRmIyK8hrdsXGdTxHt2j8Ur1FwpcBF", regular: "rVrkTVPFqliMffDfiRYs2jJeP3SC9FEKnYgjlkp2uCgb9GTgajsg7DIxKNxJaNi4z68Qowo5EXq" },
 
     // ---- General Orthopaedics / Other Specialists ----
+    // Own tickets (own price) for Trauma/Pain, same content as Consultants.
     go_trauma1:  { early: "", regular: "" },
     go_trauma2:  { early: "", regular: "" },
     go_trauma3:  { early: "", regular: "" },
@@ -90,14 +93,13 @@
         hotelNights: [5, 3],
         items: [
           card(P.spine, T.con_spine),
-          card(P.icl, T.con_icl),
+          // card(P.icl, T.con_icl),  // on hold, see T.con_icl
           card(P.trauma1, T.con_trauma1),
           card(P.trauma2, T.con_trauma2),
           card(P.trauma3, T.con_trauma3),
           card(P.trauma4, T.con_trauma4),
           card(P.pain, T.con_pain),
-          card(P.lecture, T.con_lec_sub, { title: "Scientific Lecture – Sub-Specialist" }),
-          card(P.lecture, T.con_lec_cf, { title: "Scientific Lecture – Clinical Fellow" })
+          card(P.lecture, T.con_lec, { title: "Scientific Lecture – Orthopaedic Consultants" })
         ]
       },
       {
