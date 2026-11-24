@@ -155,7 +155,8 @@
         ? '<dl class="t-prices">' + r.prices.map(function (row) {
             return '<div' + (row.current ? ' class="is-current"' : "") + ">" +
               "<dt>" + (row.label ? esc(row.label) + (row.note ? " <small>" + esc(row.note) + "</small>" : "") : '<span class="sr">Price</span>') + "</dt>" +
-              "<dd>" + (loaded || row.idr != null ? money(row.idr) : '<span class="t-loading">Loading…</span>') + "</dd></div>";
+              "<dd>" + (row.idr === 0 && r.state !== "open" ? "TBA" // price not set yet in the dashboard
+                : loaded || row.idr != null ? money(row.idr) : '<span class="t-loading">Loading…</span>') + "</dd></div>";
           }).join("") + "</dl>"
         : "";
       var action = r.state === "open"

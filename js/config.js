@@ -33,10 +33,10 @@
     con_spine:   { early: "69CnRTTWynveto5Pq9Yj6aAKhqiTVEOsPAzF5dHKI8XMObHVu89dQ4tkV2p7t7SHzLstL6sqDhp", regular: "mfQDEjObCY7n9fI2PC9Wd7uSuKsZlBHBhaZuceG8Culuy0nYbSlqnZhDurV2oBxpEQobOxaiySQ" },
     // SPINE ICL: on hold (committee still confirming, 24 Nov). Card hidden below.
     con_icl:     { early: "", regular: "" },
-    con_trauma1: { early: "", regular: "" },
-    con_trauma2: { early: "", regular: "" },
-    con_trauma3: { early: "", regular: "" },
-    con_trauma4: { early: "", regular: "" },
+    con_trauma1: { early: "ojdGMeEAMLoS15Lz2r75c41jU2452iN2UdCC2wJaNK4ogUtb3uPxF1fKtfMD1ievlen3nEtxIeV", regular: "y0StGafhFSNqVM3dspgLBc2uEOmz5nKuvLKIvRSbzBxLrlgsPPUFaE6xh0znYETOPvxoRpiVnRN" },
+    con_trauma2: { early: "Z3hvdurt8xsjsmPDtTfGnpUAjzkezrSePFwo1by88AlcqmhbGhnaQzHeyKJp1m9e9MSuAXQWszj", regular: "WJjGirA96Krcp8CfhbvrXCAWtAUPaP49YY3KiUOwoYoNDxWvGvJ8Bo9TfF5cRUuT2vQNuAPYquP" },
+    con_trauma3: { early: "zZAN5Zn5enubTgm10KjKuKaZ7mOvtG2OXkPwexFz3gvj6L3yZ88q68VuNSCW4JH4eG9Y5yuA1yC", regular: "T5qjDUWTXBln09XXwrugzc2kDj1UeozVCEuFs49b5C1kGYAuAbJSIdOP0FgZUo9EfOdmxdzVfm6" },
+    con_trauma4: { early: "crVbzwESg2D59GfBebZv9cU5dsH8sCRgXrNl7CdWtSXKcGPiE5AqEfAujbRWmMB1Uy0UnzFXIBf", regular: "mmGWyliSLiIqRiha2ix6RHFeEJVrHbFTm37BM20fkIsdGemGe6k8nQYJecS0WZUq45mGChiXLNb" },
     con_pain:    { early: "qEAfAeAxvsUPin5txcyiixt0bEkHleaJ7atpE7K1dNr9izntjZEB1tajByjqwdBzvmJytRGIemT", regular: "a67icZ2TafFWkLt2FQ5Ynb4WqkT6nHkZnXMZ4sQC4CQykm2fuvqK8glDiWEU3cH9ghda8QjAAO8" },
     // One Lecture ticket for Sub-Specialist + Clinical Fellow (client, 24 Nov):
     // the former "Sub-Specialist" tickets, renamed in the dashboard.
@@ -44,11 +44,11 @@
 
     // ---- General Orthopaedics / Other Specialists ----
     // Own tickets (own price) for Trauma/Pain, same content as Consultants.
-    go_trauma1:  { early: "", regular: "" },
-    go_trauma2:  { early: "", regular: "" },
-    go_trauma3:  { early: "", regular: "" },
-    go_trauma4:  { early: "", regular: "" },
-    go_pain:     { early: "", regular: "" },
+    go_trauma1:  { early: "RHqDP5SElaY3jLaq6N81cwZavT0wVdMSLHH5sSWE7kjIJh4iIMT4sA1VP1N4lnSeFBa8JlfiU8I", regular: "NoT8udNwxbJHxSlCrKIqnwB1j1r95lEdxTjS0GBAXm6dInQam6SznI4gvwdZuA5SOF4x9heO9Sq" },
+    go_trauma2:  { early: "xSmxbl3ZbNXiq22Gzef7KlPDxJaTSF71JfBnXGqquhQWC1Ls4KtAiqb9OWH5AowBcN8dvdeEp2X", regular: "xPXg42581V94GFIMhK5NauxucODfXgJCzMSjc9TIicUy0FyeQmOncvYB5jy4kSz7rM7N0mztySD" },
+    go_trauma3:  { early: "Tm2Uv8o0Mq1lBGs6RTjoYCJjVbubxMOSAwmn8gxOKM0mtVFK7aCdYQDF00Xab2qF61c88uOTHW7", regular: "O0xN7RxAT3LKDFkkQq9EwSSWQMr3KmxO0fkvvOqgilA35CHDm20246J1gJdPVdTiFDoeznE9oNW" },
+    go_trauma4:  { early: "hoXNXYCuLzEEwNbZdnwI16mlEcsWt8GDMgnjgRHJVFUukuK00NiQMJ2uesM1RpFyy5kbtKPb6Dq", regular: "HevoUlJ5gt0ApOI904OiimB8pIky3DtdouKbgH1l5qYlvdGkBSFp9PZFSzUK5cEkROrIrlQtqsg" },
+    go_pain:     { early: "OlrsllOQh3j9x0dJKFtGFSxHtI8Un798KdAH4tua3EhPJ93j7wHicVksNN7CTb5rgnO3qyf8VtF", regular: "q5lLzMsUAkH4PLam2QreKv9xpoU7Baa3iMRd75sHyoSlHixqWNkSRG6O2OeEq0sOdB22ChsBOgt" },
     go_lec:      { early: "AI0V4KGi22wfWrAEIco9azuWQeFRl430QACVf1gOEPVp1qDgmoWYZZYcUFw77sjnRZF9lQdMbCG", regular: "KX2MWgaApAzYLtNTrW6qyx5r48LNPBzVWGDoOfmFN66AytQI2yngLaijCGnrk40PDe5n57u9ymL" },
 
     // ---- General Practitioner / Resident / Medical Student ----
@@ -117,7 +117,7 @@
           card(P.trauma3, T.go_trauma3),
           card(P.trauma4, T.go_trauma4),
           card(P.pain, T.go_pain),
-          card(P.lecture, T.go_lec, { title: "General Orthopaedic Scientific Lecture" })
+          card(P.lecture, T.go_lec, { title: "Scientific Lecture – General Orthopaedics" })
         ]
       },
       { slug: "gp",       name: "General Practitioner", hotelNights: [3], items: [card(P.lecture, T.gp_lec)] },
