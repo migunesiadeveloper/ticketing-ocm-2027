@@ -45,6 +45,15 @@
     return "IDR " + Number(idr).toLocaleString("en-US");
   }
 
+  /* ---------- back to the committee website (category list) ---------- */
+  if (C.BACK_URL) {
+    $("[data-back]").href = C.BACK_URL;
+    $("[data-back-bar]").hidden = false;
+    var sw = $("[data-switch]");
+    sw.href = C.BACK_URL;
+    sw.target = "_top";
+  }
+
   /* ---------- chooser (no or unknown ?category) ---------- */
   if (!cat) {
     $('[data-view="chooser"]').hidden = false;

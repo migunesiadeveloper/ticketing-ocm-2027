@@ -82,6 +82,12 @@
     API_BASE: "https://api.migunesia-ticket.com/api/v1/",
     EVENT_CODE: "Ctq0tguRwzdc",
 
+    // "Back" button: the committee website page that lists the categories, so
+    // a participant who opened the wrong category can go back and pick again.
+    // TEMPORARY link (25 Nov 2026), the committee will send the final one.
+    // Leave "" to hide the button (the bottom link then opens our own chooser).
+    BACK_URL: "https://claudiastefanus.wixstudio.com/website-10/blank-12",
+
     // USD on the page = IDR price / today's rate from this source (same as the embed).
     FX_URL: "https://open.er-api.com/v6/latest/USD",
 
